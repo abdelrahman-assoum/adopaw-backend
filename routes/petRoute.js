@@ -1,14 +1,14 @@
 const express = require("express");
 const petController = require("../controllers/petController");
-const { verifySupabaseToken } = require("../middlewares/supabaseAuth");
+const authenticate = require("../middlewares/supabaseAuth");
 const router = express.Router();
 
-router.get("/", verifySupabaseToken, petController.getPets);
-router.get("/by/", verifySupabaseToken, petController.getPetsPaginated);
-router.get("/nearby/", verifySupabaseToken, petController.getPetsByNearestLocation);
-router.get("/:id", verifySupabaseToken, petController.getPets);
-router.post("/", verifySupabaseToken, petController.createPet);
-router.put("/:id", verifySupabaseToken, petController.updatePet);
-router.delete("/:id", verifySupabaseToken, petController.deletePet);
+router.get("/", authenticate, petController.getPets);
+router.get("/by/", authenticate, petController.getPetsPaginated);
+router.get("/nearby/", authenticate, petController.getPetsByNearestLocation);
+router.get("/:id", authenticate, petController.getPets);
+router.post("/", authenticate, petController.createPet);
+router.put("/:id", authenticate, petController.updatePet);
+router.delete("/:id", authenticate, petController.deletePet);
 
 module.exports = router;
