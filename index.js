@@ -1,7 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
-
+const profileRoutes = require("./routes/profileRoute");
+const petRoutes = require("./routes/petRoute");
+const commentRoutes = require("./routes/commentRoute");
 dotenv.config({ quiet: true });
 
 connectDB();
@@ -13,6 +15,9 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+app.use("/profile", profileRoutes);
+app.use("/pet", petRoutes);
+app.use("/comment", commentRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
