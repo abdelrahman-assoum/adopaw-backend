@@ -47,6 +47,7 @@ const petSchema = new mongoose.Schema(
 
     // Health & adoption-related flags
     sterilized: { type: Boolean },
+    vaccinated: { type: Boolean },
     dewormed: { type: Boolean },
     hasPassport: { type: Boolean, default: false },
     specialNeeds: { type: Boolean, default: false },

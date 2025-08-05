@@ -9,20 +9,18 @@ const petPreferenceSchema = new mongoose.Schema({
     min: { type: Number, min: 0 },
     max: { type: Number },
   },
+  color: {
+     type: [String],
+  },
   size: {
     type: [String],
     enum: ["small", "medium", "large"],
   },
-  goodWithKids: Boolean,
-  goodWithOtherPets: Boolean,
   activityLevel: {
     type: String,
     enum: ["low", "medium", "high"],
   },
-  specialNeedsOkay: Boolean,
-  notes: {
-    type: String,
-  },
+ 
 });
 
 const ProfileSchema = new mongoose.Schema(
