@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 app.use("/profile", profileRoutes);
 app.use("/pet", petRoutes);
 app.use("/comment", commentRoutes);
-app.use('/api/chat', chatRoute);
+app.use('/chat', chatRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

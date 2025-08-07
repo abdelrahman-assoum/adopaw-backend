@@ -3,25 +3,29 @@ const mongoose = require("mongoose");
 const petPreferenceSchema = new mongoose.Schema({
   species: {
     type: [String], // e.g., ['dog', 'cat']
-    enum: ["dog", "cat", "rabbit", "bird", "reptile", "other"],
   },
   ageRange: {
-    min: { type: Number, min: 0 },
-    max: { type: Number },
+    min: {
+      value: { type: Number, required: true, min: 1 },
+      unit: {
+        type: String,
+        enum: ["days", "months", "years"],
+        required: true,
+        default: "months",
+      },
+      max: {
+        value: { type: Number, required: true, min: 1 },
+        unit: {
+          type: String,
+          enum: ["days", "months", "years"],
+          required: true,
+          default: "months",
+        },
+      },
+    },
   },
-  size: {
+  colors: {
     type: [String],
-    enum: ["small", "medium", "large"],
-  },
-  goodWithKids: Boolean,
-  goodWithOtherPets: Boolean,
-  activityLevel: {
-    type: String,
-    enum: ["low", "medium", "high"],
-  },
-  specialNeedsOkay: Boolean,
-  notes: {
-    type: String,
   },
 });
 
@@ -68,10 +72,7 @@ const ProfileSchema = new mongoose.Schema(
             "Coordinates must be an array of two numbers [longitude, latitude]",
         },
       },
-      city: String,
-      state: String,
-      country: String,
-      postalCode: String,
+      detailed: String,
     },
 
     petPreferences: petPreferenceSchema,
@@ -80,7 +81,6 @@ const ProfileSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 const Profile = mongoose.model("Profile", ProfileSchema);
 module.exports = Profile;
