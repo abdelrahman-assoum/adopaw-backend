@@ -59,7 +59,7 @@ const petSchema = new mongoose.Schema(
     // Adoption status
     status: {
       type: String,
-      enum: ["available", "pending", "adopted", "removed"],
+      enum: ["available", "adopted"],
       default: "available",
     },
 
@@ -82,7 +82,6 @@ const petSchema = new mongoose.Schema(
       city: String,
       state: String,
       country: String,
-      postalCode: String,
     },
 
     // Reference to who posted this pet
