@@ -19,7 +19,7 @@ const petSchema = new mongoose.Schema(
     },
 
     age: {
-      value: { type: Number, required: true, min: 0 },
+      value: { type: Number, required: true },
       unit: {
         type: String,
         enum: ["days", "months", "years"],
