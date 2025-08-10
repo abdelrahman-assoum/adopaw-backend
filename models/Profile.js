@@ -4,20 +4,21 @@ const petPreferenceSchema = new mongoose.Schema({
   species: {
     type: [String], // e.g., ['dog', 'cat']
   },
+  gender: {
+    type: [String],
+  },
   ageRange: {
     min: {
       value: { type: Number, required: true },
       unit: {
         type: String,
         enum: ["days", "months", "years"],
-        required: true,
       },
       max: {
         value: { type: Number, required: true},
         unit: {
           type: String,
           enum: ["days", "months", "years"],
-          required: true,
         },
       },
     },
