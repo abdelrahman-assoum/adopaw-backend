@@ -67,10 +67,10 @@ exports.createPet = async (req, res) => {
     }
 
     // Validate size enum if provided
-    if (size && !["small", "medium", "large"].includes(size)) {
+    if (size && !["small", "medium", "big"].includes(size)) {
       return res
         .status(400)
-        .json({ message: "Size must be 'small', 'medium', or 'large'." });
+        .json({ message: "Size must be 'small', 'medium', or 'big'." });
     }
 
     // Validate activityLevel enum if provided
@@ -193,7 +193,7 @@ exports.getPets = async (req, res) => {
     if (req.query.status) filters.status = req.query.status;
     if (req.query.city) filters["location.city"] = req.query.city;
 
-    const pets = await Pet.find(filters).populate("postedBy", "name email");
+    const pets = await Pet.find(filters).populate("postedBy", "name email avatarUrl");
     res.json(pets);
   } catch (error) {
     console.error("Error fetching pets:", error);

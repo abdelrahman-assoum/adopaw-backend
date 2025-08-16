@@ -35,7 +35,7 @@ const petSchema = new mongoose.Schema(
 
     size: {
       type: String,
-      enum: ["small", "medium", "large"],
+      enum: ["small", "medium", "big"],
     },
 
     activityLevel: {

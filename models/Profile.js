@@ -9,13 +9,13 @@ const petPreferenceSchema = new mongoose.Schema({
   },
   ageRange: {
     min: {
-      value: { type: Number},
+      value: { type: Number },
       unit: {
         type: String,
         enum: ["days", "months", "years"],
       },
       max: {
-        value: { type: Number},
+        value: { type: Number },
         unit: {
           type: String,
           enum: ["days", "months", "years"],
