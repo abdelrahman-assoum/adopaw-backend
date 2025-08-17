@@ -96,7 +96,7 @@ const petSchema = new mongoose.Schema(
 );
 
 petSchema.plugin(mongoosePaginate);
-
+  
 // 2dsphere index for geospatial queries
 petSchema.index({ location: "2dsphere" });
 

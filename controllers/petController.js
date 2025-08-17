@@ -202,6 +202,35 @@ exports.getPets = async (req, res) => {
 };
 
 
+// Get pets posted by a specific owner (user) with pagination
+exports.getPetsByOwner = async (req, res) => {
+  try {
+    const { profileId } = req.params;
+
+    if (!profileId) {
+      return res.status(400).json({ message: "profileId is required." });
+    }
+
+    const filters = {
+      postedBy: profileId,
+    };
+
+    const paginationParams = new PaginationParameters(req).get();
+    const options = {
+      ...paginationParams[1], // page, limit, etc.
+      populate: { path: "postedBy", select: "name email avatarUrl" },
+    };
+
+    const result = await Pet.paginate(filters, options);
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching pets by owner:", error);
+    res.status(500).json({ message: "Server error while fetching pets." });
+  }
+};
+
+
 exports.getPetsPaginated = async (req, res) => {
   try {
     const filters = {};
