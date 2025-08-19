@@ -4,25 +4,33 @@ const { GROQ_API_URL, GROQ_API_KEY } = process.env;
 
 async function classifyOnTopic(message) {
   const res = await fetch(GROQ_API_URL, {
-    method:  'POST',
+    method: 'POST',
     headers: {
-      'Content-Type':  'application/json',
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${GROQ_API_KEY}`
     },
     body: JSON.stringify({
       model: 'meta-llama/llama-4-scout-17b-16e-instruct',  // preferred Groq model
       messages: [
         {
-          role:    'system',
+          role: 'system',
           content:
-            `You are a classifier.  Answer with exactly ONE word: ON_TOPIC or OFF_TOPIC.\n` +
-            `ON_TOPIC means the user is asking about the Adopaw app: adopting, browsing/listing pets, profiles, ` +
-            `comments, maps, scheduling, AI chat advice, etc.  Otherwise answer OFF_TOPIC.`
+            `You are a strict classifier. Respond with exactly ONE token: ON_TOPIC or OFF_TOPIC.
+
+            ON_TOPIC if the user's request is about:
+            - Adopaw app features (adopting/browsing/listing pets, messaging owners, profiles, comments, maps, scheduling, Pawlo chat).
+            - Pet-care topics (nutrition, health red flags, behavior, grooming, training, enrichment, adoption process).
+            - Describing or asking about a pet photo or image related to care/adoption.
+
+            OFF_TOPIC for everything else.
+
+            Important: Output ONLY ON_TOPIC or OFF_TOPIC with no punctuation or extra words.`
+
         },
         { role: 'user', content: message }
       ],
-      max_tokens:   2,
-      temperature:  0
+      max_tokens: 2,
+      temperature: 0
     }),
   });
 

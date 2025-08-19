@@ -31,6 +31,11 @@ app.use('/chat', chatRealtimeRoute);
 const { bootstrapRealtime } = require('./realtime/bootstrap');
 const { server } = bootstrapRealtime(app);
 
+// index.js (or wherever you mount routes)
+const chatApiPrefix = process.env.CHAT_API_PREFIX || "/chat-api";
+
+const pawloRoute = require("./routes/pawloRoute");
+app.use(chatApiPrefix, pawloRoute);
 
 const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => {
