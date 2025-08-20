@@ -7,6 +7,8 @@ const profileRoutes = require("./routes/profileRoute");
 const petRoutes = require("./routes/petRoute");
 const commentRoutes = require("./routes/commentRoute");
 const chatRoute = require('./routes/chatRoute');
+const chatRealtimeRoute = require('./routes/chatRealtimeRoute');
+
 
 dotenv.config({ quiet: true });
 
@@ -23,11 +25,25 @@ app.get("/", (req, res) => {
 app.use("/profile", profileRoutes);
 app.use("/pet", petRoutes);
 app.use("/comment", commentRoutes);
-app.use('/chat', chatRoute);
+app.use('/chat', chatRealtimeRoute);
+
+// >>> Add realtime bootstrap (feature-flagged)
+const { bootstrapRealtime } = require('./realtime/bootstrap');
+const { server } = bootstrapRealtime(app);
+
+// index.js (or wherever you mount routes)
+const chatApiPrefix = process.env.CHAT_API_PREFIX || "/chat-api";
+
+const pawloRoute = require("./routes/pawloRoute");
+app.use(chatApiPrefix, pawloRoute);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-}
-
-);
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT}`);
+// }
+ if (server) {
+   server.listen(PORT, () => console.log('API+WS on', PORT));
+ } else {
+   app.listen(PORT, () => console.log('API on', PORT));
+ }
+;
