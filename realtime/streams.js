@@ -1,3 +1,4 @@
+// realtime/streams.js
 const { getDb } = require('./utilsDb');
 
 async function buildUnread(db, chatId, userId) {
@@ -16,18 +17,35 @@ module.exports.wireStreams = async function wireStreams(io) {
     const m = ev.fullDocument;
     const chatId = String(m.chatId);
 
-    // 1) broadcast new message to chat room
-    io.to(`chat:${chatId}`).emit(`message:new:${chatId}`, { ...m, _id: String(m._id) });
+    // 1) broadcast new message to chat room (IDs as strings)
+    io.to(`chat:${chatId}`).emit(`message:new:${chatId}`, {
+      ...m,
+      _id: String(m._id),
+      chatId,
+      senderId: String(m.senderId),
+    });
 
     // 2) update chat list for each participant
     const parts = await db.collection('participants').find({ chatId: m.chatId }).project({ userId:1 }).toArray();
-    const last = { type:m.type, role:m.role, content:m.content, createdAt:m.createdAt };
+    const last = {
+      _id: String(m._id),
+      type: m.type,
+      role: m.role,
+      content: m.content,
+      createdAt: m.createdAt,
+      senderId: String(m.senderId),
+    };
 
     for (const p of parts) {
       const unread = await buildUnread(db, m.chatId, p.userId);
       io.to(`user:${String(p.userId)}`).emit('chat:list:update', {
         type: 'upsert',
-        chat: { _id: chatId, lastMessageAt: m.createdAt, lastMessage: last, unreadCount: unread }
+        chat: {
+          _id: chatId,
+          lastMessageAt: m.createdAt,
+          lastMessage: last,
+          unreadCount: unread
+        }
       });
     }
   });
