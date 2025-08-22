@@ -1,22 +1,30 @@
-const jwt = require('jsonwebtoken');
+// realtime/socketAuth.js
+const jwt = require("jsonwebtoken");
+const { getDb } = require("./utilsDb");
 
-function verifyToken(token) {
-  const mode = process.env.JWT_MODE || 'HS256';
-  if (mode === 'RS256') {
-    return jwt.verify(token, process.env.JWT_PUBLIC_KEY, { algorithms: ['RS256'] });
-  }
-  const secret = process.env.JWT_HS_SECRET || process.env.SUPABASE_JWT_SECRET;
-  return jwt.verify(token, secret, { algorithms: ['HS256'] });
-}
+const SECRET = process.env.SUPABASE_JWT_SECRET || process.env.JWT_HS_SECRET;
 
 module.exports.socketAuth = function socketAuth(io) {
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     try {
-      const tok = socket.handshake.auth?.token || '';
-      socket.userId = verifyToken(tok).sub;
+      const tok = socket.handshake.auth?.token || "";
+      const dec = jwt.verify(tok, SECRET, { algorithms: ["HS256"] });
+
+      const uid   = dec.sub;
+      const email = (dec.email || dec.user_metadata?.email || "").toLowerCase();
+      if (!uid) return next(new Error("unauthorized"));
+
+      const db = await getDb();
+      let profile =
+        await db.collection("profiles").findOne({ supaId: uid }) ||
+        (email ? await db.collection("profiles").findOne({ email }) : null);
+
+      if (!profile) return next(new Error("unauthorized"));
+
+      socket.userId = String(profile._id); // required by socket handlers
       next();
-    } catch (e) {
-      next(new Error('unauthorized'));
+    } catch (_e) {
+      next(new Error("unauthorized"));
     }
   });
 };

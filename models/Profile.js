@@ -1,85 +1,35 @@
-const mongoose = require("mongoose");
+// middlewares/supabaseAuth.js
+const jwt = require('jsonwebtoken');
+const Profile = require('../models/Profile');
 
-const petPreferenceSchema = new mongoose.Schema({
-  species: {
-    type: [String], // e.g., ['dog', 'cat']
-  },
-  gender: {
-    type: [String],
-  },
-  ageRange: {
-    min: {
-      value: { type: Number},
-      unit: {
-        type: String,
-        enum: ["days", "months", "years"],
-      },
-      max: {
-        value: { type: Number},
-        unit: {
-          type: String,
-          enum: ["days", "months", "years"],
-        },
-      },
-    },
-  },
-  colors: {
-    type: [String],
-  },
-});
+const SECRET = process.env.JWT_HS_SECRET || process.env.SUPABASE_JWT_SECRET;
 
-const ProfileSchema = new mongoose.Schema(
-  {
-    supaId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-    name: {
-      type: String,
-      default: "",
-    },
-    avatarUrl: {
-      type: String,
-      default: "",
-    },
-    bio: {
-      type: String,
-      default: "",
-    },
-    phone: {
-      type: String,
-      default: "",
-    },
-    location: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        validate: {
-          validator: function (v) {
-            return Array.isArray(v) && v.length === 2;
-          },
-          message:
-            "Coordinates must be an array of two numbers [longitude, latitude]",
-        },
-      },
-      detailed: String,
-    },
+module.exports = async function supabaseAuth(req, res, next) {
+  try {
+    const h = req.headers.authorization || '';
+    const token = h.startsWith('Bearer ') ? h.slice(7) : '';
+    if (!token) return res.status(401).json({ error: 'missing token' });
 
-    petPreferences: petPreferenceSchema,
-  },
-  {
-    timestamps: true,
+    const decoded = jwt.verify(token, SECRET, { algorithms: ['HS256'] });
+    const uid = decoded.sub; // Supabase user id (UUID)
+    const email = decoded.email || decoded.user_metadata?.email || null;
+    if (!uid) return res.status(401).json({ error: 'invalid token (no sub)' });
+
+    // 🔧 match your schema: Profile.supaId
+    let profile =
+      await Profile.findOne({ supaId: uid }) ||
+      (email ? await Profile.findOne({ email }) : null);
+
+    if (!profile) return res.status(401).json({ error: 'profile not found for uid' });
+
+    req.user = {
+      id: String(profile._id),  // IMPORTANT: Profile ObjectId as string
+      supabaseId: uid,
+      email,
+      claims: decoded,
+    };
+    next();
+  } catch {
+    res.status(401).json({ error: 'unauthorized' });
   }
-);
-
-const Profile = mongoose.model("Profile", ProfileSchema);
-module.exports = Profile;
+};
