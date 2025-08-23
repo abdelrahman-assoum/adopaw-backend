@@ -6,15 +6,22 @@ const { getChatReply } = require("../services/chatService");
 const { classifyOnTopic } = require("../services/classificationServiceGroq");
 const { describeMany } = require("../services/visionServiceGroq");
 
-const flag = (v) => String(v ?? "0").trim().toLowerCase();
-const ENABLE_CLASSIFY = ["1","true","yes"].includes(flag(process.env.ENABLE_CLASSIFY));
-const VISION_ENABLED  = ["1","true","yes"].includes(flag(process.env.GROQ_VISION_ENABLED));
+const flag = (v) =>
+  String(v ?? "0")
+    .trim()
+    .toLowerCase();
+const ENABLE_CLASSIFY = ["1", "true", "yes"].includes(
+  flag(process.env.ENABLE_CLASSIFY)
+);
+const VISION_ENABLED = ["1", "true", "yes"].includes(
+  flag(process.env.GROQ_VISION_ENABLED)
+);
 
 router.post(["/pawlo/reply", "/reply"], async (req, res) => {
   const { message, history, imageUrls } = req.body || {};
 
   const hasText = typeof message === "string" && message.trim().length > 0;
-  const images  = Array.isArray(imageUrls)
+  const images = Array.isArray(imageUrls)
     ? imageUrls.filter((u) => typeof u === "string" && u.trim())
     : [];
 
@@ -29,8 +36,14 @@ router.post(["/pawlo/reply", "/reply"], async (req, res) => {
     if (ENABLE_CLASSIFY) {
       try {
         const probe = hasText ? message : "User sent pet-related image(s).";
-        const label = String(await classifyOnTopic(probe)).trim().toUpperCase();
-        console.log("[PAWLO] classify:", { label, hasText, images: images.length });
+        const label = String(await classifyOnTopic(probe))
+          .trim()
+          .toUpperCase();
+        console.log("[PAWLO] classify:", {
+          label,
+          hasText,
+          images: images.length,
+        });
         if (label !== "ON_TOPIC") {
           return res.json({
             reply:
@@ -48,15 +61,14 @@ router.post(["/pawlo/reply", "/reply"], async (req, res) => {
       try {
         const notes = await describeMany(images, hasText ? message : "");
         const lines = (notes || [])
-          .map(n => (n.note || "").trim())
+          .map((n) => (n.note || "").trim())
           .filter(Boolean)
-          .map(s => `- ${s}`);
+          .map((s) => `- ${s}`);
 
         if (lines.length) {
           extraSystemMsg = {
             role: "system",
-            content:
-`VISUAL_CONTEXT (from analyzed images):
+            content: `VISUAL_CONTEXT (from analyzed images):
 ${lines.join("\n")}
 
 Rules for assistant:

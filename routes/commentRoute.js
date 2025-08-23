@@ -1,27 +1,27 @@
 const express = require("express");
 const router = express.Router();
 const commentController = require("../controllers/commentController");
-const authenticate = require("../middlewares/supabaseAuth");
+const supabaseAuth = require("../middlewares/supabaseAuth");
 
 // Create a new comment for a pet
-router.post("/", authenticate, commentController.createComment);
+router.post("/", supabaseAuth, commentController.createComment);
 
 // Get comments for a specific pet
-router.get("/:petId", authenticate, commentController.getCommentsByPet);
+router.get("/:petId", supabaseAuth, commentController.getCommentsByPet);
 
 // Add a reply to a comment
-router.post("/reply/:commentId", authenticate, commentController.addReply);
+router.post("/reply/:commentId", supabaseAuth, commentController.addReply);
 
 // Edit a comment
-router.put("/:commentId", authenticate, commentController.editComment);
+router.put("/:commentId", supabaseAuth, commentController.editComment);
 
 // Edit a reply to a comment
-router.put("/:commentId/reply/:replyId", authenticate, commentController.editReply);
+router.put("/:commentId/reply/:replyId", supabaseAuth, commentController.editReply);
 
 // Delete a comment
-router.delete("/:commentId", authenticate, commentController.deleteComment);
+router.delete("/:commentId", supabaseAuth, commentController.deleteComment);
 
 // Delete a reply from a comment
-router.delete("/:commentId/reply/:replyId", authenticate, commentController.deleteReply);
+router.delete("/:commentId/reply/:replyId", supabaseAuth, commentController.deleteReply);
 
 module.exports = router;
